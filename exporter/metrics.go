@@ -15,7 +15,10 @@ func sanitizeMetricName(n string) string {
 	return metricNameRE.ReplaceAllString(n, "_")
 }
 
-func newMetricDescr(namespace string, metricName string, docString string, labels []string) *prometheus.Desc {
+func newMetricDescr(namespace string, metricName string, docString string, labels []string, ClusterName ...string) *prometheus.Desc {
+	if len(strings.Join(ClusterName," ")) > 0 {
+		return prometheus.NewDesc(prometheus.BuildFQName(namespace, "", metricName), docString, labels, map[string]string{"cluster": strings.Join(ClusterName," ")})
+	}
 	return prometheus.NewDesc(prometheus.BuildFQName(namespace, "", metricName), docString, labels, nil)
 }
 
@@ -82,7 +85,7 @@ func (e *Exporter) registerConstMetricGauge(ch chan<- prometheus.Metric, metric 
 func (e *Exporter) registerConstMetric(ch chan<- prometheus.Metric, metric string, val float64, valType prometheus.ValueType, labelValues ...string) {
 	descr := e.metricDescriptions[metric]
 	if descr == nil {
-		descr = newMetricDescr(e.options.Namespace, metric, metric+" metric", labelValues)
+		descr = newMetricDescr(e.options.Namespace, metric, metric+" metric", labelValues, e.options.ClusterLabel)
 	}
 
 	if m, err := prometheus.NewConstMetric(descr, valType, val, labelValues...); err == nil {

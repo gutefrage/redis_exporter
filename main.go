@@ -78,6 +78,7 @@ func main() {
 		tlsCaCertFile        = flag.String("tls-ca-cert-file", getEnv("REDIS_EXPORTER_TLS_CA_CERT_FILE", ""), "Name of the CA certificate file (including full path) if the server requires TLS client authentication")
 		tlsServerKeyFile     = flag.String("tls-server-key-file", getEnv("REDIS_EXPORTER_TLS_SERVER_KEY_FILE", ""), "Name of the server key file (including full path) if the web interface and telemetry should use TLS")
 		tlsServerCertFile    = flag.String("tls-server-cert-file", getEnv("REDIS_EXPORTER_TLS_SERVER_CERT_FILE", ""), "Name of the server certificate file (including full path) if the web interface and telemetry should use TLS")
+		clusterLabel         = flag.String("cluster-label", getEnv("REDIS_CLUSTER_LABEL", ""), "Append 'cluster' label to every metric with the set string as value")
 		maxDistinctKeyGroups = flag.Int64("max-distinct-key-groups", getEnvInt64("REDIS_EXPORTER_MAX_DISTINCT_KEY_GROUPS", 100), "The maximum number of distinct key groups with the most memory utilization to present as distinct metrics per database, the leftover key groups will be aggregated in the 'overflow' bucket")
 		isDebug              = flag.Bool("debug", getEnvBool("REDIS_EXPORTER_DEBUG", false), "Output verbose debug information")
 		setClientName        = flag.Bool("set-client-name", getEnvBool("REDIS_EXPORTER_SET_CLIENT_NAME", true), "Whether to set client name to redis_exporter")
@@ -187,6 +188,7 @@ func main() {
 			SkipTLSVerification:   *skipTLSVerification,
 			ClientCertificates:    tlsClientCertificates,
 			CaCertificates:        tlsCaCertificates,
+			ClusterLabel:          *clusterLabel,
 			ConnectionTimeouts:    to,
 			MetricsPath:           *metricPath,
 			RedisMetricsOnly:      *redisMetricsOnly,

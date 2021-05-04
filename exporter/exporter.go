@@ -63,6 +63,7 @@ type Options struct {
 	LuaScript             []byte
 	ClientCertificates    []tls.Certificate
 	CaCertificates        *x509.CertPool
+	ClusterLabel          string
 	InclSystemMetrics     bool
 	SkipTLSVerification   bool
 	SetClientName         bool
@@ -369,7 +370,7 @@ func NewRedisExporter(redisURI string, opts Options) (*Exporter, error) {
 		"up":                                           {txt: "Information about the Redis instance"},
 		"connected_clients_details":                    {txt: "Details about connected clients", lbls: connectedClientsLabels},
 	} {
-		e.metricDescriptions[k] = newMetricDescr(opts.Namespace, k, desc.txt, desc.lbls)
+		e.metricDescriptions[k] = newMetricDescr(opts.Namespace, k, desc.txt, desc.lbls, opts.ClusterLabel)
 	}
 
 	if e.options.MetricsPath == "" {
@@ -409,11 +410,11 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 	}
 
 	for _, v := range e.metricMapGauges {
-		ch <- newMetricDescr(e.options.Namespace, v, v+" metric", nil)
+		ch <- newMetricDescr(e.options.Namespace, v, v+" metric", nil, e.options.ClusterLabel)
 	}
 
 	for _, v := range e.metricMapCounters {
-		ch <- newMetricDescr(e.options.Namespace, v, v+" metric", nil)
+		ch <- newMetricDescr(e.options.Namespace, v, v+" metric", nil, e.options.ClusterLabel)
 	}
 
 	ch <- e.totalScrapes.Desc()
